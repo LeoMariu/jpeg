@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>.JPG</title>
+	<meta name="author"      content="Leonardo Mariucci">
+	<meta name="description" content="Jpg">
+	<meta name="viewport"    content="width=device-width, initial-scale=1">
+	<link rel="icon"         href="./icons/icon_32.png"  type="image/png">
+	<link rel="icon"         href="./icons/icon_64.png"  type="image/png">
+	<link rel="icon"         href="./icons/icon_128.png"  type="image/png">
+	<link rel="icon"         href="./icons/icon_256.png" type="image/png">
+	<link rel="icon"         href="./icons/icon_512.png"  type="image/png">
+	<link rel="manifest"     href="./manifest.json">
+	<link rel="stylesheet"   href="./assets/css/main.css">
+	<link rel="manifest"     href="./manifest.json">
+	<!--<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">-->
+	
+</head>
+
+<body>
+	<div class="contenitore">
+
+
+		<header>
+			<span></span>
+			<h1>JPEG</h1>
+		</header>
+
+
+		<section class="filetto">
+			<h4 class="titolo-sezione"></h4>
+			<div class="contenuto-sezione">
+				<p>
+					Il formato JPEG (Joint Photographic Experts Group) è uno standard di 
+					compressione per immagini digitali ampiamente utilizzato, soprattutto 
+					per fotografie e immagini con variazioni tonali continue. Questo formato 
+					consente di ridurre significativamente le dimensioni dei file, facilitando 
+					l'archiviazione e la trasmissione delle immagini.
+				</p>
+				
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<h4 class="titolo-sezione">Storia</h4>
+			<div class="contenuto-sezione">
+				<p>
+					Il formato JPG nasce negli anni ’80 per risolvere un problema tecnico cruciale: 
+					le immagini digitali non compresse occupavano troppo spazio e non erano 
+					facilmente trasmissibili su reti lente. Con la diffusione della fotografia 
+					digitale, degli scanner e dei primi sistemi di comunicazione visiva, 
+					serviva un metodo per comprimere le immagini in modo efficiente senza perdere
+					troppa qualità.<br>
+					Per capire il problema: un’immagine da 1024×768 pixel a 24-bit (RGB) può pesare 
+					oltre 2 MB. In un’epoca in cui un intero disco rigido conteneva solo 20–40 MB, 
+					archiviare anche poche immagini era insostenibile.<br>
+					Per rispondere a questa esigenza, nel 1986, l’ISO (International Organization for 
+					Standardization) e l’ITU-T ITU-T (International Telecommunication Union – Telecommunication 
+					Standardization Sector) crearono il Joint Photographic Experts Group (JPEG), 
+					con l’obiettivo di sviluppare uno standard di compressione universale. 
+					Il risultato fu pubblicato nel 1992 come standard ISO/IEC 10918-1. Utilizzando 
+					tecniche come la Trasformata Coseno Discreta (DCT) e la compressione con perdita (lossy), 
+					il formato JPEG rese possibile la diffusione di immagini leggere, compatibili 
+					e di buona qualità su larga scala.
+				</p>
+				<div>
+					<label for="imageUpload">Carica un'immagine:</label>
+					<input type="file" id="imageUpload" accept="image/*"><br><br>
+					<div>
+						<img id="imageViewport" src="" alt="Anteprima immagine" style="max-width: 300px; max-height: 200px; object-fit: contain;">
+					</div>
+				</div>
+				<script>
+					document.getElementById('imageUpload').addEventListener('change', function(event) {
+						const file = event.target.files[0];
+						if (file) {
+							const reader = new FileReader();
+							reader.onload = function(e) {
+								const img = new Image();
+								img.onload = function() {
+									const canvas = document.createElement('canvas');
+									const ctx = canvas.getContext('2d');
+									let width = img.width;
+									let height = img.height;
+
+									// Resize logic
+									if (width > 300 || height > 200) {
+										const aspectRatio = width / height;
+										if (aspectRatio > 1) {
+											width = 300;
+											height = 300 / aspectRatio;
+										} else {
+											width = 200 * aspectRatio;
+											height = 200;
+										}
+									}
+
+									canvas.width = width;
+									canvas.height = height;
+									ctx.drawImage(img, 0, 0, width, height);
+
+									// Set resized image to viewport
+									document.getElementById('imageViewport').src = canvas.toDataURL();
+								};
+								img.src = e.target.result;
+							};
+							reader.readAsDataURL(file);
+						}
+					});
+				</script>
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<h4 class="titolo-sezione">Compressione .jpeg</h4>
+			<div class="contenuto-sezione">
+				<p>
+					La compressione JPEG è un metodo sofisticato che riduce le dimensioni
+					delle immagini digitali sfruttando le caratteristiche della percezione
+					visiva umana. Questo processo si articola in diverse fasi, ciascuna
+					con un ruolo specifico nell'ottimizzazione dei dati dell'immagine.
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<p class="titolo-sezione">1.<br> Conversione dello spazio colore:</p>
+			<div class="contenuto-sezione">
+				<p>
+					L'immagine originale, solitamente rappresentata nel modello RGB 
+					(Rosso, Verde, Blu) [img RGB], viene trasformata nel modello YCbCr. In questo 
+					nuovo modello, il canale Y rappresenta la luminanza (ovvero la luminosità), 
+					mentre Cb e Cr rappresentano le componenti cromatiche, cioè la differenza 
+					tra blu e luminanza e tra rosso e luminanza. Questa trasformazione è motivata 
+					dal fatto che l'occhio umano è più sensibile alle variazioni di luminosità che a quelle di colore.
+				</p>
+				<div style="display: flex; justify-content: space-between;">
+					<div style="display: flex; flex-direction: column;">
+						<canvas id="channelR" style="margin-bottom: 10px;"></canvas>
+						<canvas id="channelG" style="margin-bottom: 10px;"></canvas>
+						<canvas id="channelB"></canvas>
+					</div>
+					<div style="display: flex; flex-direction: column;">
+						<canvas id="channelY" style="margin-bottom: 10px;"></canvas>
+						<canvas id="channelCb" style="margin-bottom: 10px;"></canvas>
+						<canvas id="channelCr"></canvas>
+					</div>
+				</div>
+				<script>
+					document.getElementById('imageUpload').addEventListener('change', function(event) {
+						const file = event.target.files[0];
+						if (file) {
+							const reader = new FileReader();
+							reader.onload = function(e) {
+								const img = new Image();
+								img.onload = function() {
+									const canvas = document.createElement('canvas');
+									const ctx = canvas.getContext('2d');
+									canvas.width = img.width;
+									canvas.height = img.height;
+									ctx.drawImage(img, 0, 0);
+
+									const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+									const data = imageData.data;
+
+									// Create separate canvases for each channel
+									const createChannelCanvas = (width, height, processPixel) => {
+										const channelCanvas = document.createElement('canvas');
+										channelCanvas.width = width;
+										channelCanvas.height = height;
+										const channelCtx = channelCanvas.getContext('2d');
+										const channelImageData = channelCtx.createImageData(width, height);
+										const channelData = channelImageData.data;
+
+										for (let i = 0; i < data.length; i += 4) {
+											processPixel(channelData, i, data);
+										}
+
+										channelCtx.putImageData(channelImageData, 0, 0);
+										return channelCanvas;
+									};
+
+									// Process RGB channels
+									const channelR = createChannelCanvas(canvas.width, canvas.height, (channelData, i, data) => {
+										channelData[i] = data[i]; // R
+										channelData[i + 1] = 0; // G
+										channelData[i + 2] = 0; // B
+										channelData[i + 3] = data[i + 3]; // Alpha
+									});
+									const channelG = createChannelCanvas(canvas.width, canvas.height, (channelData, i, data) => {
+										channelData[i] = 0; // R
+										channelData[i + 1] = data[i + 1]; // G
+										channelData[i + 2] = 0; // B
+										channelData[i + 3] = data[i + 3]; // Alpha
+									});
+									const channelB = createChannelCanvas(canvas.width, canvas.height, (channelData, i, data) => {
+										channelData[i] = 0; // R
+										channelData[i + 1] = 0; // G
+										channelData[i + 2] = data[i + 2]; // B
+										channelData[i + 3] = data[i + 3]; // Alpha
+									});
+
+									// Process YCbCr channels
+									const channelY = createChannelCanvas(canvas.width, canvas.height, (channelData, i, data) => {
+										const Y = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+										channelData[i] = channelData[i + 1] = channelData[i + 2] = Y; // Luminance
+										channelData[i + 3] = data[i + 3]; // Alpha
+									});
+									const channelCb = createChannelCanvas(canvas.width, canvas.height, (channelData, i, data) => {
+										const Cb = -0.168736 * data[i] - 0.331264 * data[i + 1] + 0.5 * data[i + 2] + 128;
+										channelData[i] = channelData[i + 1] = channelData[i + 2] = Cb; // Chrominance Cb
+										channelData[i + 3] = data[i + 3]; // Alpha
+									});
+									const channelCr = createChannelCanvas(canvas.width, canvas.height, (channelData, i, data) => {
+										const Cr = 0.5 * data[i] - 0.418688 * data[i + 1] - 0.081312 * data[i + 2] + 128;
+										channelData[i] = channelData[i + 1] = channelData[i + 2] = Cr; // Chrominance Cr
+										channelData[i + 3] = data[i + 3]; // Alpha
+									});
+
+									// Append canvases to the respective placeholders
+									document.getElementById('channelR').getContext('2d').drawImage(channelR, 0, 0);
+									document.getElementById('channelG').getContext('2d').drawImage(channelG, 0, 0);
+									document.getElementById('channelB').getContext('2d').drawImage(channelB, 0, 0);
+									document.getElementById('channelY').getContext('2d').drawImage(channelY, 0, 0);
+									document.getElementById('channelCb').getContext('2d').drawImage(channelCb, 0, 0);
+									document.getElementById('channelCr').getContext('2d').drawImage(channelCr, 0, 0);
+								};
+								img.src = e.target.result;
+							};
+							reader.readAsDataURL(file);
+						}
+					});
+				</script>
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<p class="titolo-sezione">2. <br>Sottocampionamento della crominanza:</p>
+			<div class="contenuto-sezione">
+				<p>
+					In questo passaggio, le componenti Cb e Cr vengono ridotte di risoluzione 
+					(tipicamente con uno schema 4:2:0), perché l’occhio è meno sensibile ai dettagli 
+					nei colori rispetto a quelli nella luminanza. Questo significa che si usano meno 
+					dati per rappresentare le informazioni cromatiche, riducendo già in questa fase 
+					una parte significativa delle dimensioni del file, con una perdita di qualità quasi impercettibile.
+				</p>
+			</div>
+		</section>
+		
+		
+		<section class="filetto">
+			<p class="titolo-sezione">3.<br> Suddivisione in blocchi 8×8:</p>
+			<div class="contenuto-sezione">
+				<p>
+					Ogni canale (Y, Cb, Cr) viene suddiviso in blocchi di 8×8 pixel. 
+					Tutta la compressione successiva lavora su questi piccoli blocchi. 
+					Questo rende più semplice l’applicazione della trasformazione successiva 
+					e consente di comprimere l’immagine “pezzo per pezzo”.
+				</p>
+				<img src="https://www.baeldung.com/wp-content/uploads/sites/4/2023/04/DCT-Base-Images.png">
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<p class="titolo-sezione">4.<br> Shift dei valori di pixel:</p>
+			<div class="contenuto-sezione">
+				<p>
+					Prima di passare alla trasformazione dei dati, i valori dei pixel 
+					di ciascun blocco, originariamente compresi tra 0 e 255, vengono traslati 
+					di −128. Questo passaggio, detto anche "shifting", centra i valori intorno 
+					allo zero, facilitando l’applicazione della trasformazione matematica successiva, la DCT.
+				</p>
+
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<p class="titolo-sezione">5.<br> DCT:</p>
+			<div class="contenuto-sezione">
+				<p>
+					Dopo aver diviso l'immagine in blocchi da 8×8 pixel, JPEG applica su ciascuno 
+					la DCT (Discrete Cosine Transform), che trasforma i dati dal dominio spaziale 
+					(valori dei pixel) al dominio delle frequenze. Questa trasformazione scompone 
+					il blocco in una somma di onde coseno, dove: <br> 
+					<li>Il primo coefficiente (DC) rappresenta la media di luminosità del blocco.</li>
+					<li>Gli altri (AC) rappresentano variazioni e dettagli via via più fini.<br></li><br>
+					Nelle immagini reali, gran parte dell'informazione visiva è contenuta nelle <br>basse 
+					frequenze, mentre le alte frequenze(dettagli minori) generano<br>coefficienti piccoli 
+					o nulli. La DCT permette quindi di identificare cosa<br> è importante conservare e cosa 
+					si può comprimere o eliminare, rendendo<br> più efficiente la compressione nelle fasi successive.
+				</p>
+
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<p>6.<br> Quantizzazione:</p>
+			<div class="contenuto-sezione">
+				<p>
+					L'occhio umano non è molto bravo a percepire elementi ad alta frequenza in un'immagine. 
+					In questa fase, JPEG rimuove alcune di queste informazioni ad alta frequenza senza 
+					influire sulla qualità percepita dell’immagine. Per fare ciò, la matrice di peso 
+					viene divisa da una tabella di quantizzazione precalcolcata e i risultati vengono
+					arrotondati all'intero più vicino. Ecco come appare una tabella di quantizzazione 
+					per i canali di crominanza:
+					<br> <br>
+					<img src="https://www.baeldung.com/wp-content/ql-cache/quicklatex.com-f3c9fa97c28b97b3f241dc4d0f45a307_l3.svg">
+					<br> <br>
+					E per il canale di luminanza:
+					<br> <br>
+					<img src="https://www.baeldung.com/wp-content/ql-cache/quicklatex.com-91d36c86abf6427e23fde6b46f338a69_l3.svg">
+					<br> <br>
+					Possiamo vedere che le tabelle di quantizzazione hanno numeri più alti in basso a destra, 
+					dove si trovano i dati ad alta frequenza, e hanno numeri più bassi in alto a sinistra, d
+					ove si trovano i dati a bassa frequenza. Di conseguenza, dopo aver diviso ogni valore di peso, 
+					i dati ad alta frequenza vengono arrotondati a 0:
+					<br> <br>
+					<img src="https://www.baeldung.com/wp-content/ql-cache/quicklatex.com-b98360b07ed09b2e8de83da007935744_l3.svg">
+					<br> <br>
+					Ora abbiamo tre matrici contenenti valori interi per ogni blocco di 64 pixel, una per 
+					la luminanza e due per la cromatinza. La scelta della matrice e del livello di qualità 
+					influisce direttamente sul rapporto tra compressione e qualità visiva: più aggressiva è 
+					la quantizzazione, più dati vengono rimossi, ma a scapito della fedeltà dell’immagine.
+				</p>
+
+			</div>
+		</section>
+
+
+		<section class="filetto">
+			<p class="titolo-sezione">7.<br> Ordinamento a zig-zag:</p>
+			<div class="contenuto-sezione">
+				<p>
+					I coefficienti quantizzati vengono letti in ordine a zig-zag, partendo dall'angolo 
+					in alto a sinistra della matrice 8×8. Questo ordine favorisce la sequenzializzazione
+					dei coefficienti, raggruppando quelli non nulli all'inizio e quelli nulli alla fine.
+					<br> <br>
+					<img src="https://cgjennings.ca/articles/jpeg-compression/jpeg-zig-zag.png">
+				</p>
+
+			</div>
+		</section>
+		<section class="filetto">
+			<p class="titolo-sezione">8.<br> RLE:</p>
+			<div class="contenuto-sezione">
+				<p>
+					La sequenza di coefficienti in zig-zag viene compressa tramite RLE, una tecnica 
+					semplice che rappresenta lunghe serie di zeri con una coppia (conteggio, valore).
+					<br><br>
+					Esempio: 0 0 0 5 → (3,5)
+					<br><br>
+					Poiché dopo la quantizzazione i blocchi contengono molti zeri, l’RLE è estremamente efficace.
+
+				</p>
+
+			</div>
+		</section>
+
+		<section class="filetto">
+			<p class="titolo-sezione">9.<br> Codifica entropica:</p>
+			<div class="contenuto-sezione">
+				<p>
+					La sequenza compressa passa attraverso una codifica entropica, tipicamente con codifica 
+					di Huffman. Questo metodo assegna codici binari più corti ai valori più frequenti e più 
+					lunghi a quelli rari, permettendo una compressione lossless molto efficace. A questo punto, 
+					l’immagine è stata compressa con un mix di tecniche sia con perdita che senza perdita.
+				</p>
+
+			</div>
+		</section>
+
+		<section class="filetto">
+			<p class="titolo-sezione">10.<br> Riconversione:</p>
+			<div class="contenuto-sezione">
+				<p>
+					Infine, i dati così ottenuti vengono scritti all’interno di un file JPEG, 
+					secondo una struttura ben definita che include: intestazioni, tabelle di 
+					quantizzazione e di Huffman, metadati (come l’EXIF) e, ovviamente, i dati 
+					dell’immagine compressa. Il risultato è un file compatto, largamente compatibile, 
+					e pronto per essere visualizzato su qualsiasi dispositivo o browser.
+				</p>
+
+			</div>
+		</section>
+
+		<section class="filetto">
+			<h4 class="titolo-sezione">Differenza tra .jpg e .jpeg</h4>
+			<div class="contenuto-sezione">
+				<p>
+					Le estensioni di file .jpg e .jpeg si riferiscono allo stesso identico formato. 
+					La differenza nasce per motivi storici: nei primi sistemi operativi, come MS-DOS 
+					e le prime versioni di Windows, le estensioni potevano essere lunghe al massimo 
+					3 caratteri. Per questo, l’estensione .jpeg fu abbreviata in .jpg. Su altri sistemi 
+					(come macOS e Linux) questo limite non esisteva, quindi entrambi i nomi venivano usati.
+					Oggi, i sistemi moderni supportano entrambe le estensioni in modo identico. Non esiste 
+					alcuna differenza in termini di qualità, struttura del file, compressione o compatibilità: 
+					.jpg e .jpeg sono tecnicamente equivalenti.
+				</p>
+
+			</div>
+		</section>
+
+		<section class="filetto">
+			<h4 class="titolo-sezione">Evoluzioni successive</h4>
+			<div class="contenuto-sezione">
+				<p>
+					Dopo la nascita del formato JPEG nel 1992, sono stati sviluppati 
+					diversi formati evolutivi per superarne i limiti.
+					<br>
+					<h4>JPEG 2000:</h4> introdotto nei primi anni 2000, utilizza la trasformata wavelet <br>
+						per una compressione più efficiente, anche lossless. Supporta trasparenza <br>
+						e immagini scalabili, ma ha avuto scarsa adozione per la bassa compatibilità<br>
+						con browser e software.
+						<br><br>
+					<h4>JPEG XR:<br></h4> progettato per immagini ad alta gamma dinamica (HDR) e	<br>
+						maggiore profondità di colore. Anche questo formato è rimasto poco diffuso.
+						<br><br>
+					<h4>JPEG XL:</h4> la proposta più recente e moderna. Supporta compressione lossy<br>
+						e lossless, trasparenza, animazioni e offre una qualità visiva superiore con file<br>
+						più leggeri. È pensato per essere retrocompatibile con JPEG e adatto al web,<br> 
+						ma la sua adozione è ancora in corso.
+						<br><br>
+						Nel frattempo, altri formati concorrenti come WebP e AVIF stanno <br>
+						guadagnando terreno grazie a una compressione ancora più efficiente e a un <br>
+						supporto crescente sui browser.
+				<p>
+
+			</div>			
+		</section>
+
+		<section class="filetto">
+			<h4 class="titolo-sezione">Fonti</h4>
+			<div class="contenuto-sezione">
+				<p>
+					<a href="https://cgjennings.ca/articles/jpeg-compression/" target="_blank">How JPEG works</a><br>
+					<a href="https://www.baeldung.com/cs/jpeg-compression" target="_blank">JPEG Compression Explained</a><br>
+					<a href="https://dev.to/marycheung021213/understanding-dct-and-quantization-in-jpeg-compression-1col" target="_blank">Understanding DCT and Quantization in JPEG compression</a><br>
+				</p>
+
+			</div>
+		</section>
+
+		<section class="filetto">
+			<h4 class="titolo-sezione">Prova la compressione JPEG</h4>
+			<div class="contenuto-sezione">
+			  <input type="file" id="imageInput" accept="image/*"><br><br>
+		  
+			  <label for="quality">Qualità JPEG: <span id="qualityValue">0.8</span></label>
+			  <input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.8"><br><br>
+		  
+			  <div class="image-preview">
+				<div>
+				  <strong>Originale:</strong><br>
+				  <img id="originalPreview" src="" alt="Immagine originale">
+				</div>
+				<div>
+				  <strong>Compressa:</strong><br>
+				  <canvas id="canvas"></canvas>
+				</div>
+			  </div>
+			</div>
+		  </section>
+		  
+	</div>
+	<script src="compressione.js"></script>
+	
+</body>
+</html>
